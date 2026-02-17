@@ -44,10 +44,9 @@ export function initVendors(app) {
     const qty = Number(f.get('quantity'));
     const cost = Number(f.get('cost'));
 
-    app.db.run('UPDATE products SET in_stock = in_stock + ? WHERE id=?', [qty, productId]);
+    app.db.run('UPDATE products SET quantity = quantity + ? WHERE id=?', [qty, productId]);
     app.db.run('UPDATE vendors SET total_purchase_amount = total_purchase_amount + ? WHERE id=?', [cost, vendorId]);
     app.db.run('INSERT INTO vendor_purchases (vendor_id,product_id,quantity,cost,purchase_date) VALUES (?,?,?,?,?)', [vendorId, productId, qty, cost, new Date().toISOString().slice(0, 10)]);
-    app.db.run('INSERT INTO stock_history (product_id,change_qty,date) VALUES (?,?,?)', [productId, qty, new Date().toISOString()]);
     e.target.reset();
     app.notify('Purchase recorded and stock updated');
     app.refreshAll();
@@ -56,7 +55,7 @@ export function initVendors(app) {
   root.addEventListener('click', async e => {
     const id = e.target.dataset.id;
     if (e.target.matches('.vendor-history')) {
-      const data = app.db.query(`SELECT vp.purchase_date,p.product_name as product,vp.quantity,vp.cost
+      const data = app.db.query(`SELECT vp.purchase_date,p.name as product,vp.quantity,vp.cost
                                  FROM vendor_purchases vp JOIN products p ON vp.product_id=p.id
                                  WHERE vp.vendor_id=? ORDER BY vp.id DESC`, [id]);
       alert(data.length ? data.map(x => `${x.purchase_date}: ${x.product} x${x.quantity} (৳${x.cost})`).join('\n') : 'No vendor purchases yet');
@@ -81,8 +80,8 @@ export function initVendors(app) {
         </tr>`).join('');
 
       root.querySelector('#purchaseVendor').innerHTML = vendors.map(v => `<option value="${v.id}">${v.name}</option>`).join('');
-      const products = app.db.query('SELECT id,product_name FROM products ORDER BY product_name');
-      root.querySelector('#purchaseProduct').innerHTML = products.map(p => `<option value="${p.id}">${p.product_name}</option>`).join('');
+      const products = app.db.query('SELECT id,name FROM products ORDER BY name');
+      root.querySelector('#purchaseProduct').innerHTML = products.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
     },
   };
 }

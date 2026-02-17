@@ -8,8 +8,8 @@ export function initDashboard(app) {
       const totalSales = app.db.queryOne('SELECT COUNT(*) c FROM invoices').c || 0;
       const revenue = app.db.queryOne('SELECT IFNULL(SUM(total),0) v FROM invoices').v || 0;
       const profit = app.db.queryOne('SELECT IFNULL(SUM(profit),0) v FROM invoices').v || 0;
-      const stockItems = app.db.queryOne('SELECT IFNULL(SUM(in_stock),0) v FROM products').v || 0;
-      const lowStock = app.db.queryOne('SELECT COUNT(*) c FROM products WHERE in_stock <= min_stock_alert').c || 0;
+      const stockItems = app.db.queryOne('SELECT IFNULL(SUM(quantity),0) v FROM products').v || 0;
+      const lowStock = app.db.queryOne('SELECT COUNT(*) c FROM products WHERE quantity <= low_stock_threshold').c || 0;
       const customers = app.db.queryOne('SELECT COUNT(*) c FROM customers').c || 0;
       const vendors = app.db.queryOne('SELECT COUNT(*) c FROM vendors').c || 0;
       const recent = app.db.query('SELECT id,invoice_date,total FROM invoices ORDER BY id DESC LIMIT 5');

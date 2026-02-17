@@ -32,11 +32,11 @@ export function initReports(app) {
         : '<p>No sales yet</p>';
 
       const monthly = app.db.queryOne(`SELECT IFNULL(SUM(total),0) s, IFNULL(SUM(profit),0) p FROM invoices WHERE strftime('%Y-%m',invoice_date)=strftime('%Y-%m','now')`);
-      const low = app.db.query('SELECT product_name,in_stock FROM products WHERE in_stock <= min_stock_alert ORDER BY in_stock ASC');
+      const low = app.db.query('SELECT name,quantity FROM products WHERE quantity <= low_stock_threshold ORDER BY quantity ASC');
       root.querySelector('#profitLow').innerHTML = `
         <p>This month sales: <strong>৳${fmt(monthly.s)}</strong> | profit: <strong>৳${fmt(monthly.p)}</strong></p>
         <h4>Low Stock Report</h4>
-        ${low.length ? `<ul>${low.map(i => `<li>${i.product_name}: ${i.in_stock}</li>`).join('')}</ul>` : '<p>All good ✅</p>'}
+        ${low.length ? `<ul>${low.map(i => `<li>${i.name}: ${i.quantity}</li>`).join('')}</ul>` : '<p>All good ✅</p>'}
       `;
     },
   };

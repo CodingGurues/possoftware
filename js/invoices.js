@@ -30,7 +30,7 @@ export function initInvoices(app) {
 
   const calc = () => {
     const subtotal = selectedItems.reduce((s, x) => s + x.qty * x.sale_price, 0);
-    const cost = selectedItems.reduce((s, x) => s + x.qty * x.purchase_price, 0);
+    const cost = selectedItems.reduce((s, x) => s + x.qty * x.cost_price, 0);
     const discount = Number(root.querySelector('[name="discount"]').value || 0);
     const tax = Number(root.querySelector('[name="tax"]').value || 0);
     const total = subtotal - discount + tax;
@@ -43,9 +43,9 @@ export function initInvoices(app) {
     const productId = Number(root.querySelector('#invoiceProduct').value);
     const qty = Number(root.querySelector('[name="qty"]').value || 1);
     const p = app.db.queryOne('SELECT * FROM products WHERE id=?', [productId]);
-    if (!p.id || qty > p.in_stock) return app.notify('Invalid qty or insufficient stock');
+    if (!p.id || qty > p.quantity) return app.notify('Invalid qty or insufficient stock');
     selectedItems.push({ ...p, qty });
-    root.querySelector('#invoiceItems').innerHTML = selectedItems.map(i => `<tr><td>${i.product_name}</td><td>${i.qty}</td><td>${i.sale_price}</td><td>${(i.qty * i.sale_price).toFixed(2)}</td></tr>`).join('');
+    root.querySelector('#invoiceItems').innerHTML = selectedItems.map(i => `<tr><td>${i.name}</td><td>${i.qty}</td><td>${i.sale_price}</td><td>${(i.qty * i.sale_price).toFixed(2)}</td></tr>`).join('');
     calc();
   });
 
@@ -58,8 +58,7 @@ export function initInvoices(app) {
     const { subtotal, total, profit, discount, tax } = calc();
 
     for (const item of selectedItems) {
-      app.db.run('UPDATE products SET in_stock = in_stock - ? WHERE id=?', [item.qty, item.id]);
-      app.db.run('INSERT INTO stock_history (product_id,change_qty,date) VALUES (?,?,?)', [item.id, -item.qty, new Date().toISOString()]);
+      app.db.run('UPDATE products SET quantity = quantity - ? WHERE id=?', [item.qty, item.id]);
     }
 
     app.db.run('INSERT INTO invoices (customer_id,invoice_date,subtotal,discount,tax,total,profit,items_json) VALUES (?,?,?,?,?,?,?,?)', [
@@ -70,7 +69,7 @@ export function initInvoices(app) {
       tax,
       total,
       profit,
-      JSON.stringify(selectedItems.map(i => ({ id: i.id, name: i.product_name, qty: i.qty, rate: i.sale_price }))),
+      JSON.stringify(selectedItems.map(i => ({ id: i.id, name: i.name, qty: i.qty, rate: i.sale_price }))),
     ]);
 
     app.db.run('UPDATE customers SET total_purchases = total_purchases + ? WHERE id=?', [total, customerId]);
@@ -113,8 +112,8 @@ export function initInvoices(app) {
     refresh() {
       const customers = app.db.query('SELECT id,name FROM customers ORDER BY name');
       root.querySelector('#invoiceCustomer').innerHTML = customers.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-      const products = app.db.query('SELECT id,product_name FROM products ORDER BY product_name');
-      root.querySelector('#invoiceProduct').innerHTML = products.map(p => `<option value="${p.id}">${p.product_name}</option>`).join('');
+      const products = app.db.query('SELECT id,name FROM products ORDER BY name');
+      root.querySelector('#invoiceProduct').innerHTML = products.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
       refreshHistory();
       calc();
     },
