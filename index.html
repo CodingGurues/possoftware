@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>POS SaaS Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell" id="appShell">
+      <aside class="sidebar">
+        <div class="brand">⚡ POS Pro</div>
+        <nav class="nav-links" id="navLinks">
+          <button data-view="dashboard" class="active">Dashboard</button>
+          <button data-view="inventory">Stock</button>
+          <button data-view="customers">Customers</button>
+          <button data-view="invoices">Invoices</button>
+          <button data-view="vendors">Vendors</button>
+          <button data-view="reports">Reports</button>
+        </nav>
+        <div class="sidebar-footer">
+          <button id="themeToggle">🌙 Dark Mode</button>
+          <button id="exportDb">Export DB</button>
+          <label class="file-btn">Import DB <input id="importDb" type="file" accept=".sqlite,.db" /></label>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <header class="topbar">
+          <h1 id="viewTitle">Dashboard</h1>
+          <div class="topbar-actions">
+            <input id="searchInput" type="search" placeholder="Search..." />
+            <div class="profile-pill">Admin</div>
+          </div>
+        </header>
+
+        <section id="dashboard" class="view active"></section>
+        <section id="inventory" class="view"></section>
+        <section id="customers" class="view"></section>
+        <section id="invoices" class="view"></section>
+        <section id="vendors" class="view"></section>
+        <section id="reports" class="view"></section>
+      </main>
+    </div>
+
+    <div id="toastContainer" class="toast-container"></div>
+
+    <div id="confirmModal" class="modal hidden">
+      <div class="modal-card">
+        <h3 id="confirmTitle">Confirm action</h3>
+        <p id="confirmText">Are you sure?</p>
+        <div class="modal-actions">
+          <button id="confirmCancel" class="btn-secondary">Cancel</button>
+          <button id="confirmOk" class="btn-danger">Confirm</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sql.js@1.10.3/dist/sql-wasm.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="module" src="js/app.js"></script>
+  </body>
+</html>
